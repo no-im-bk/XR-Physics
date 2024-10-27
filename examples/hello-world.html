@@ -12,19 +12,12 @@
 			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> ar - cones<br/>(Chrome Android 81+)
 		</div>
 
-		<script type="importmap">
-			{
-				"imports": {
-					"three": "../build/three.module.js",
-					"three/addons/": "./jsm/"
-				}
-			}
-		</script>
+		<script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
+
 
 		<script type="module">
 
-			import * as THREE from 'three';
-			import { ARButton } from 'three/addons/webxr/ARButton.js';
+			import { ARButton } from '../components/ARButton.js';
 
 			let camera, scene, renderer;
 			let controller;
