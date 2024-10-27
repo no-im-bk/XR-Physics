@@ -1,3 +1,6 @@
+/**
+ * Taken from the Threejs examples repo
+ */
 class ARButton {
 
 	static createButton( renderer, sessionInit = {} ) {

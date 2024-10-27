@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Hello World</title>
+		<title>Hello Sphere</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 		<link rel="stylesheet" href="../main.css">
@@ -9,7 +9,7 @@
 	<body>
 
 		<div id="info">
-            An example from the threejs repo to test out the AR dev environment. <br/>
+            Trying rendering a body. <br/>
 
 			<a href="https://github.com/mrdoob/three.js/blob/master/examples/webxr_ar_cones.html" target="_blank" rel="noopener">https://github.com/mrdoob/three.js/blob/master/examples/webxr_ar_cones.html</a>
 		</div>
@@ -18,6 +18,9 @@
 
 
 		<script type="module">
+
+            import { Body } from '../src/Body.js';
+            import { Sphere } from '../src/shapes/Sphere.js';
 
 			import { ARButton } from '../components/ARButton.js';
 
@@ -54,21 +57,14 @@
 
 				//
 
-				const geometry = new THREE.CylinderGeometry( 0, 0.05, 0.2, 32 ).rotateX( Math.PI / 2 );
-
-				function onSelect() {
-
-					const material = new THREE.MeshPhongMaterial( { color: 0xffffff * Math.random() } );
-					const mesh = new THREE.Mesh( geometry, material );
-					mesh.position.set( 0, 0, - 0.3 ).applyMatrix4( controller.matrixWorld );
-					mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
-					scene.add( mesh );
-
-				}
-
-				controller = renderer.xr.getController( 0 );
-				controller.addEventListener( 'select', onSelect );
-				scene.add( controller );
+				const geometry = new THREE.SphereGeometry(1,10,10);
+                const material = new THREE.MeshPhongMaterial( { color: 0xFFAAAA } );
+                const mesh = new THREE.Mesh( geometry, material );
+                scene.add(mesh);
+                const shape = new Sphere(1);
+                const pos = new THREE.Vector3(0,0,0);
+                const orientation = new THREE.Quaternion(0,0,0,1);
+                const body = new Body(pos, orientation, shape, mesh);
 
 				//
 
