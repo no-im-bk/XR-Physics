@@ -10,8 +10,8 @@ class Body{
         this.shape = shape;
         this.mesh = mesh;
 
-        mesh.position.set(position);
-        mesh.quaternion.set(orientation);
+        this.mesh.position.copy(position);
+        this.mesh.quaternion.copy(orientation);
     }
 
 }

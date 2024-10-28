@@ -22,7 +22,7 @@
             import { Body } from '../src/Body.js';
             import { Sphere } from '../src/shapes/Sphere.js';
 
-			import { ARButton } from '../components/ARButton.js';
+			import { VRButton } from '../components/VRButton.js';
 
 			let camera, scene, renderer;
 			let controller;
@@ -53,18 +53,18 @@
 
 				//
 
-				document.body.appendChild( ARButton.createButton( renderer ) );
+				document.body.appendChild( VRButton.createButton( renderer ) );
 
 				//
 
-				const geometry = new THREE.SphereGeometry(1,10,10);
-                const material = new THREE.MeshPhongMaterial( { color: 0xFFAAAA } );
-                const mesh = new THREE.Mesh( geometry, material );
+				var geometry = new THREE.SphereGeometry(1,10,10);
+                var material = new THREE.MeshPhongMaterial( { color: 0xff8888 } );
+                var mesh = new THREE.Mesh( geometry, material );
+                var shape = new Sphere(1);
+                var pos = new THREE.Vector3(0,0,-5);
+                var orientation = new THREE.Quaternion(0,0,0,1);
+                var body = new Body(pos, orientation, shape, mesh);
                 scene.add(mesh);
-                const shape = new Sphere(1);
-                const pos = new THREE.Vector3(0,0,0);
-                const orientation = new THREE.Quaternion(0,0,0,1);
-                const body = new Body(pos, orientation, shape, mesh);
 
 				//
 
