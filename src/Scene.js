@@ -7,9 +7,9 @@ class Scene {
     }
 
     update(dt) {
-        // apply gravity
+        // update each object
         for (var i = 0; i < this.#bodies.length; i++) {
-            this.#bodies[i].update(dt);
+            this.#bodies[i].update(dt, this.#bodies);
         }
     }
 

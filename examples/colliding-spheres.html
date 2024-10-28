@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Colliding Spheres</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" href="../main.css">
+	</head>
+	<body>
+
+		<div id="info">
+            Basic collision detection that stops a sphere on contact. VR demo. Edge recommended<br/>
+
+		</div>
+
+		<script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
+
+
+		<script type="module">
+
+            import { Body } from '../src/Body.js';
+            import { Scene } from '../src/Scene.js';
+            import { Sphere } from '../src/shapes/Sphere.js';
+
+			import { VRButton } from '../components/VRButton.js';
+
+			let camera, scene, renderer;
+			let controller;
+            let clock;
+            let rigidScene;
+
+			init();
+
+			function init() {
+
+                const container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				scene = new THREE.Scene();
+
+                clock = new THREE.Clock();
+
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20 );
+
+				const light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 1 );
+				light.position.set( 0.5, 1, 0.25 );
+				scene.add( light );
+
+
+				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.setAnimationLoop( animate );
+				renderer.xr.enabled = true;
+				container.appendChild( renderer.domElement );
+
+
+				document.body.appendChild( VRButton.createButton( renderer ) );
+
+
+                rigidScene = new Scene(scene);
+
+				var geometry = new THREE.SphereGeometry(1,10,10);
+                var material = new THREE.MeshLambertMaterial( { color: 0xff8888 } );
+                var mesh = new THREE.Mesh( geometry, material );
+                var shape = new Sphere(1);
+                var pos = new THREE.Vector3(0,0,-5);
+                var orientation = new THREE.Quaternion(0,0,0,1);
+                var body = new Body(pos, orientation, shape, mesh, 0);
+                rigidScene.add(body);
+
+                var geometry = new THREE.SphereGeometry(0.1,10,10);
+                var material = new THREE.MeshLambertMaterial( { color: 0x88ff88 } );
+                var mesh = new THREE.Mesh( geometry, material );
+                var shape = new Sphere(0.1);
+                var pos = new THREE.Vector3(0.01,10,-5);
+                var orientation = new THREE.Quaternion(0,0,0,1);
+                var body = new Body(pos, orientation, shape, mesh, 1);
+                rigidScene.add(body);
+
+
+
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			//
+
+			function animate() {
+
+                rigidScene.update(clock.getDelta());
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>
