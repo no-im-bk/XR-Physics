@@ -7,6 +7,7 @@ import { Shape } from '../Shape.js'
  */
 class Sphere extends Shape {
     radius;
+    centerOfMass;
 
     /**
      * Creates a sphere with a radius
@@ -15,6 +16,7 @@ class Sphere extends Shape {
     constructor(radius) {
         super();
         this.radius = radius;
+        this.centerOfMass = new THREE.Vector3(0,0,0);
     }
 }
 

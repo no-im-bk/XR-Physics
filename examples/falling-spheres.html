@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Hello Sphere</title>
+		<title>Falling Spheres</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 		<link rel="stylesheet" href="../main.css">
@@ -9,7 +9,7 @@
 	<body>
 
 		<div id="info">
-            Trying rendering a spherical body. VR demo<br/>
+            Rendering Spheres that fall due to gravity. VR demo.<br/>
 
 		</div>
 
@@ -19,21 +19,26 @@
 		<script type="module">
 
             import { Body } from '../src/Body.js';
+            import { Scene } from '../src/Scene.js';
             import { Sphere } from '../src/shapes/Sphere.js';
 
 			import { VRButton } from '../components/VRButton.js';
 
 			let camera, scene, renderer;
 			let controller;
+            let clock;
+            let rigidScene;
 
 			init();
 
 			function init() {
 
-				const container = document.createElement( 'div' );
+                const container = document.createElement( 'div' );
 				document.body.appendChild( container );
 
 				scene = new THREE.Scene();
+
+                clock = new THREE.Clock();
 
 				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20 );
 
@@ -41,7 +46,6 @@
 				light.position.set( 0.5, 1, 0.25 );
 				scene.add( light );
 
-				//
 
 				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
@@ -50,24 +54,37 @@
 				renderer.xr.enabled = true;
 				container.appendChild( renderer.domElement );
 
-				//
 
 				document.body.appendChild( VRButton.createButton( renderer ) );
 
-				//
+
+                rigidScene = new Scene(scene);
 
 				var geometry = new THREE.SphereGeometry(1,10,10);
                 var material = new THREE.MeshPhongMaterial( { color: 0xff8888 } );
+
                 var mesh = new THREE.Mesh( geometry, material );
                 var shape = new Sphere(1);
                 var pos = new THREE.Vector3(0,0,-5);
                 var orientation = new THREE.Quaternion(0,0,0,1);
                 var body = new Body(pos, orientation, shape, mesh);
-                scene.add(mesh);
+                rigidScene.add(body);
 
-				//
+                var mesh = new THREE.Mesh( geometry, material );
+                var shape = new Sphere(1);
+                var pos = new THREE.Vector3(3,0,-5);
+                var orientation = new THREE.Quaternion(0,0,0,1);
+                var body = new Body(pos, orientation, shape, mesh);
+                rigidScene.add(body);
 
-				window.addEventListener( 'resize', onWindowResize );
+                var mesh = new THREE.Mesh( geometry, material );
+                var shape = new Sphere(1);
+                var pos = new THREE.Vector3(-3,0,-5);
+                var orientation = new THREE.Quaternion(0,0,0,1);
+                var body = new Body(pos, orientation, shape, mesh);
+                rigidScene.add(body);
+
+
 
 			}
 
@@ -83,6 +100,8 @@
 			//
 
 			function animate() {
+
+                rigidScene.update(clock.getDelta());
 
 				renderer.render( scene, camera );
 
