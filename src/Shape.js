@@ -10,6 +10,10 @@ class Shape {
         }
     }
 
+    getInverseAngularInertia(invMass) {
+        throw new Error("getInverseAngularInertia(invMass) unimplemented from abstract class Shape.")
+    }
+
     
 }
 

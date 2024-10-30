@@ -9,7 +9,7 @@
 	<body>
 
 		<div id="info">
-            Basic collision detection that stops a sphere on contact. VR demo. Edge recommended<br/>
+            Colliding spheres! VR demo. Edge recommended<br/>
 
 		</div>
 
@@ -30,6 +30,8 @@
             let rigidScene;
 
 			let timeCounter = 0;
+
+			let textureLoader, ballMaterial, ballGeometry, ballTexture;
 
 			init();
 
@@ -58,6 +60,23 @@
 
 
 				document.body.appendChild( VRButton.createButton( renderer ) );
+
+				textureLoader = new THREE.TextureLoader();
+				ballTexture = textureLoader.load(
+					'/images/redtext.gif',  // Replace with your texture path
+					() => {
+						console.log('Texture loaded successfully');
+					},
+					undefined,
+					(err) => {
+						console.error('Error loading texture:', err);
+					}
+				);
+				ballMaterial = new THREE.MeshStandardMaterial({
+					map: ballTexture
+				});
+				ballGeometry = new THREE.SphereGeometry(0.1,10,10);
+
 
 
                 rigidScene = new Scene(scene);
@@ -101,9 +120,7 @@
 				if(timeCounter > 0.2) {
 					timeCounter = 0;
 
-					var geometry = new THREE.SphereGeometry(0.1,10,10);
-					var material = new THREE.MeshLambertMaterial( { color: 0x88ff88 } );
-					var mesh = new THREE.Mesh( geometry, material );
+					var mesh = new THREE.Mesh( ballGeometry, ballMaterial );
 					var shape = new Sphere(0.1);
 					var pos = new THREE.Vector3(0.01,3,-5);
 					var orientation = new THREE.Quaternion(0,0,0,1);

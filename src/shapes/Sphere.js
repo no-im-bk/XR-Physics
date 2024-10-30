@@ -18,6 +18,13 @@ class Sphere extends Shape {
         this.radius = radius;
         this.centerOfMass = new THREE.Vector3(0,0,0);
     }
+
+    getInverseAngularInertia(invMass) {
+        let Iinv = 5*invMass/(2*this.radius*this.radius);
+        let IinvMat = new THREE.Matrix3();
+        IinvMat.set(Iinv,0,0, 0,Iinv,0, 0,0,Iinv);
+        return IinvMat;
+    }
 }
 
 export {Sphere};

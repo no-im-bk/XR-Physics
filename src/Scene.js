@@ -28,7 +28,7 @@ class Scene {
 
         // update velocities
         for (var i = 0; i < this.#bodies.length; i++) {
-            this.#bodies[i].mesh.position.add(this.#bodies[i].linearVelocity.clone().multiplyScalar(dt));
+            this.#bodies[i].update(dt);
         }
 
         // killplane
@@ -44,7 +44,7 @@ class Scene {
         for(var i = removeIndicies.length - 1; i >= 0; i--) {
             this.#bodies.splice(removeIndicies[i],1);  
         }
-        console.log(JSON.parse(JSON.stringify(this.#bodies)));
+        // console.log(JSON.parse(JSON.stringify(this.#bodies)));
     }
 
     add(body) {
@@ -59,7 +59,12 @@ class Scene {
         let collisionElasticity = contact.bodyA.elasticity * contact.bodyB.elasticity; // rough estimate of what the elasticity of the collision should be
         
         // apply the impulse from the collision
-        let impulse = contact.normal.clone().multiplyScalar(velocityB.sub(velocityA).dot(contact.normal) * (1+collisionElasticity)/(contact.bodyA.invMass + contact.bodyB.invMass));
+        let collsionRelToA = contact.pointOnA_WorldSpace.clone().sub(contact.bodyA.getCenterOfMassWorldSpace());
+        let collsionRelToB = contact.pointOnB_WorldSpace.clone().sub(contact.bodyB.getCenterOfMassWorldSpace());
+        let angularContributionA = contact.bodyA.applyInverseAngularInertiaWorldSpace(collsionRelToA.clone().cross(contact.normal)).cross(collsionRelToA);
+        let angularContributionB = contact.bodyB.applyInverseAngularInertiaWorldSpace(collsionRelToB.clone().cross(contact.normal)).cross(collsionRelToB);
+        let angularContribution = angularContributionA.clone().add(angularContributionB).dot(contact.normal);
+        let impulse = contact.normal.clone().multiplyScalar(velocityB.sub(velocityA).dot(contact.normal) * (1+collisionElasticity)/(contact.bodyA.invMass + contact.bodyB.invMass + angularContribution));
         contact.bodyA.applyImpulseLinear(impulse);
         contact.bodyB.applyImpulseLinear(impulse.negate());
 
