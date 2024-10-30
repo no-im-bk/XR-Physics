@@ -71,13 +71,13 @@ class Scene {
 
         // apply the impulse from friction
         let velocityNormal = contact.normal.clone().multiplyScalar(contact.normal.clone().dot(velocityA.clone().sub(velocityB)));
-        let velocityTangent = velocityA.clone().sub(velocityB).sub(velocityNormal);
+        let velocityTangent = velocityB.clone().sub(velocityA).sub(velocityNormal);
         angularContributionA = contact.bodyA.applyInverseAngularInertiaWorldSpace(collsionRelToA.clone().cross(velocityTangent.clone().normalize())).cross(collsionRelToA);
         angularContributionB = contact.bodyB.applyInverseAngularInertiaWorldSpace(collsionRelToB.clone().cross(velocityTangent.clone().normalize())).cross(collsionRelToB);
         angularContribution = angularContributionA.clone().add(angularContributionB).dot(velocityTangent.clone().normalize());
         impulse = velocityTangent.clone().multiplyScalar(collisionFriction*(1+collisionElasticity)/(contact.bodyA.invMass + contact.bodyB.invMass + angularContribution));
-        contact.bodyA.applyImpulse(contact.pointOnA_WorldSpace.clone(), impulse.negate());
-        contact.bodyB.applyImpulse(contact.pointOnB_WorldSpace.clone(), impulse);
+        contact.bodyA.applyImpulse(contact.pointOnA_WorldSpace.clone(), impulse);
+        contact.bodyB.applyImpulse(contact.pointOnB_WorldSpace.clone(), impulse.negate());
 
         // move the objects to stop them from overlapping, while keeping the center of mass of the two at the same place
         let sepDist = contact.pointOnB_WorldSpace.clone().sub(contact.pointOnA_WorldSpace);
