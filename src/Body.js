@@ -61,7 +61,7 @@ class Body{
             return;
         }
 
-        this.angularVelocity.add(angularImpulse.clone().applyQuaternion(this.getOrientation().invert()).applyMatrix3(this.#invAngularInertia).applyQuaternion(this.getOrientation()));
+        this.angularVelocity.add(angularImpulse.clone().applyQuaternion(this.getOrientation().clone().invert()).applyMatrix3(this.#invAngularInertia).applyQuaternion(this.getOrientation()));
 
         const maxAngularSpeed = 30;
 
@@ -72,7 +72,7 @@ class Body{
     }
 
     applyInverseAngularInertiaWorldSpace(velocity) {
-        return velocity.applyQuaternion(this.getOrientation().invert()).applyMatrix3(this.#invAngularInertia).applyQuaternion(this.getOrientation());
+        return velocity.clone().applyQuaternion(this.getOrientation().clone().invert()).applyMatrix3(this.#invAngularInertia).applyQuaternion(this.getOrientation());
     }
 
     getPosition() {
@@ -134,12 +134,13 @@ class Body{
         this.angularVelocity.add(alpha.clone().multiplyScalar(dt));
         let dAngle = this.angularVelocity.clone().multiplyScalar(dt);
         let quat = new THREE.Quaternion();
-        this.mesh.quaternion.premultiply(quat.setFromAxisAngle(dAngle.clone().normalize(), dAngle.length()));
+        quat.setFromAxisAngle(dAngle.clone().normalize(), dAngle.length());
+        this.mesh.quaternion.premultiply(quat);
 
         // update the new model position as it rotated around the Center of Mass
         this.mesh.position.copy(this.getCenterOfMassWorldSpace().clone().add(posRelativeToCM.clone().applyQuaternion(quat)));
 
-        console.log(JSON.parse(JSON.stringify(this.angularVelocity)));
+        //console.log(JSON.parse(JSON.stringify(this.angularVelocity)));
     }
 
 

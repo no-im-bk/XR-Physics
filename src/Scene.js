@@ -35,7 +35,7 @@ class Scene {
         let removeIndicies = [];
         for (var i = 0; i < this.#bodies.length; i++) {
             
-            if(this.#bodies[i].mesh.position.y < -2) {
+            if(this.#bodies[i].invMass > 0 && this.#bodies[i].mesh.position.y < -2) {
                 removeIndicies.push(i);
                 this.#bodies[i].delete(this.threeScene);
             }
@@ -54,14 +54,17 @@ class Scene {
 
     static resolveContact(contact) {
 
-        let velocityA = contact.bodyA.linearVelocity.clone();
-        let velocityB = contact.bodyB.linearVelocity.clone();
-        let collisionElasticity = contact.bodyA.elasticity * contact.bodyB.elasticity; // rough estimate of what the elasticity of the collision should be
-        let collisionFriction = contact.bodyA.friction * contact.bodyB.friction; // rough estimate of what the friction of the collision should be
-        
-        // apply the impulse from the collision
         let collsionRelToA = contact.pointOnA_WorldSpace.clone().sub(contact.bodyA.getCenterOfMassWorldSpace());
         let collsionRelToB = contact.pointOnB_WorldSpace.clone().sub(contact.bodyB.getCenterOfMassWorldSpace());
+        let velocityA = contact.bodyA.linearVelocity.clone().add(contact.bodyA.angularVelocity.clone().cross(collsionRelToA));
+        let velocityB = contact.bodyB.linearVelocity.clone().add(contact.bodyB.angularVelocity.clone().cross(collsionRelToB));
+        let collisionElasticity = contact.bodyA.elasticity * contact.bodyB.elasticity; // rough estimate of what the elasticity of the collision should be
+        let collisionFriction = contact.bodyA.friction * contact.bodyB.friction; // rough estimate of what the friction of the collision should be
+
+        console.log(collisionFriction);
+        
+        // apply the impulse from the collision
+        
         let angularContributionA = contact.bodyA.applyInverseAngularInertiaWorldSpace(collsionRelToA.clone().cross(contact.normal)).cross(collsionRelToA);
         let angularContributionB = contact.bodyB.applyInverseAngularInertiaWorldSpace(collsionRelToB.clone().cross(contact.normal)).cross(collsionRelToB);
         let angularContribution = angularContributionA.clone().add(angularContributionB).dot(contact.normal);
@@ -70,12 +73,12 @@ class Scene {
         contact.bodyB.applyImpulse(contact.pointOnB_WorldSpace.clone(), impulse.negate());
 
         // apply the impulse from friction
-        let velocityNormal = contact.normal.clone().multiplyScalar(contact.normal.clone().dot(velocityA.clone().sub(velocityB)));
+        let velocityNormal = contact.normal.clone().multiplyScalar(contact.normal.clone().dot(velocityB.clone().sub(velocityA)));
         let velocityTangent = velocityB.clone().sub(velocityA).sub(velocityNormal);
         angularContributionA = contact.bodyA.applyInverseAngularInertiaWorldSpace(collsionRelToA.clone().cross(velocityTangent.clone().normalize())).cross(collsionRelToA);
         angularContributionB = contact.bodyB.applyInverseAngularInertiaWorldSpace(collsionRelToB.clone().cross(velocityTangent.clone().normalize())).cross(collsionRelToB);
         angularContribution = angularContributionA.clone().add(angularContributionB).dot(velocityTangent.clone().normalize());
-        impulse = velocityTangent.clone().multiplyScalar(collisionFriction*(1+collisionElasticity)/(contact.bodyA.invMass + contact.bodyB.invMass + angularContribution));
+        impulse = velocityTangent.clone().multiplyScalar(collisionFriction/(contact.bodyA.invMass + contact.bodyB.invMass + angularContribution));
         contact.bodyA.applyImpulse(contact.pointOnA_WorldSpace.clone(), impulse);
         contact.bodyB.applyImpulse(contact.pointOnB_WorldSpace.clone(), impulse.negate());
 

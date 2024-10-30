@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Bouncing Spheres</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" href="../main.css">
+	</head>
+	<body>
+
+		<div id="info">
+            Colliding spheres! VR demo. Edge recommended<br/>
+
+		</div>
+
+		<script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
+
+
+		<script type="module">
+
+            import { Body } from '../src/Body.js';
+            import { Scene } from '../src/Scene.js';
+            import { Sphere } from '../src/shapes/Sphere.js';
+
+			import { VRButton } from '../components/VRButton.js';
+
+			let camera, scene, renderer;
+			let controller;
+            let clock;
+            let rigidScene;
+
+			let timeCounter = 0;
+
+			let textureLoader, ballMaterial, ballGeometry, ballTexture;
+
+			init();
+
+			function init() {
+
+                const container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				scene = new THREE.Scene();
+
+                clock = new THREE.Clock();
+
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20 );
+
+				const light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 1 );
+				light.position.set( 0.5, 1, 0.25 );
+				scene.add( light );
+
+
+				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.setAnimationLoop( animate );
+				renderer.xr.enabled = true;
+				container.appendChild( renderer.domElement );
+
+
+				document.body.appendChild( VRButton.createButton( renderer ) );
+
+				textureLoader = new THREE.TextureLoader();
+				ballTexture = textureLoader.load(
+					'/images/greentext.gif',  // Replace with your texture path
+					() => {
+						console.log('Texture loaded successfully');
+					},
+					undefined,
+					(err) => {
+						console.error('Error loading texture:', err);
+					}
+				);
+				ballMaterial = new THREE.MeshStandardMaterial({
+					map: ballTexture
+				});
+				ballGeometry = new THREE.SphereGeometry(0.2,10,10);
+
+
+
+                rigidScene = new Scene(scene);
+
+				var geometry = new THREE.SphereGeometry(5000,100,100);
+                var material = new THREE.MeshLambertMaterial( { color: 0xff8888 } );
+                var mesh = new THREE.Mesh( geometry, material );
+                var shape = new Sphere(5000);
+                var pos = new THREE.Vector3(0,-5000 - 1,-5);
+                var orientation = new THREE.Quaternion(0,0,0,1);
+                var body = new Body(pos, orientation, shape, mesh, 0, 1);
+                rigidScene.add(body);
+
+                
+
+
+
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			//
+
+			function animate() {
+
+				let delta = clock.getDelta();
+
+                rigidScene.update(delta);
+
+				renderer.render( scene, camera );
+
+				timeCounter += delta;
+				if(timeCounter > 1) {
+					timeCounter = 0;
+
+					var mesh = new THREE.Mesh( ballGeometry, ballMaterial );
+					var shape = new Sphere(0.2);
+					var pos = new THREE.Vector3( Math.random() * 0.2 - 0.1,3,Math.random() * 0.2 - 4.9);
+					var orientation = new THREE.Quaternion(0,0,0,1);
+					var body = new Body(pos, orientation, shape, mesh, 1000, 0.2);
+					rigidScene.add(body);
+				}
+
+			}
+
+		</script>
+	</body>
+</html>
