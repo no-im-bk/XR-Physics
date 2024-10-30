@@ -7,6 +7,7 @@ class Body{
     linearVelocity = new THREE.Vector3(0,0,0);
     angularVelocity = new THREE.Vector3(0,0,0);
     elasticity = 1;
+    friction = 0.5;
 
     constructor(position, orientation, shape, mesh,invMass, elasticity) {
         this.shape = shape;
@@ -43,7 +44,7 @@ class Body{
 
         this.applyImpulseLinear(impulse);
 
-        let centerOfMass = this.shape.getCenterOfMassWorldSpace();
+        let centerOfMass = this.getCenterOfMassWorldSpace();
         let leverArm = location.clone().sub(centerOfMass);
         this.applyImpulseAngular(leverArm.cross(impulse));
     }

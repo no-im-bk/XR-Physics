@@ -57,6 +57,7 @@ class Scene {
         let velocityA = contact.bodyA.linearVelocity.clone();
         let velocityB = contact.bodyB.linearVelocity.clone();
         let collisionElasticity = contact.bodyA.elasticity * contact.bodyB.elasticity; // rough estimate of what the elasticity of the collision should be
+        let collisionFriction = contact.bodyA.friction * contact.bodyB.friction; // rough estimate of what the friction of the collision should be
         
         // apply the impulse from the collision
         let collsionRelToA = contact.pointOnA_WorldSpace.clone().sub(contact.bodyA.getCenterOfMassWorldSpace());
@@ -65,8 +66,18 @@ class Scene {
         let angularContributionB = contact.bodyB.applyInverseAngularInertiaWorldSpace(collsionRelToB.clone().cross(contact.normal)).cross(collsionRelToB);
         let angularContribution = angularContributionA.clone().add(angularContributionB).dot(contact.normal);
         let impulse = contact.normal.clone().multiplyScalar(velocityB.sub(velocityA).dot(contact.normal) * (1+collisionElasticity)/(contact.bodyA.invMass + contact.bodyB.invMass + angularContribution));
-        contact.bodyA.applyImpulseLinear(impulse);
-        contact.bodyB.applyImpulseLinear(impulse.negate());
+        contact.bodyA.applyImpulse(contact.pointOnA_WorldSpace.clone(), impulse);
+        contact.bodyB.applyImpulse(contact.pointOnB_WorldSpace.clone(), impulse.negate());
+
+        // apply the impulse from friction
+        let velocityNormal = contact.normal.clone().multiplyScalar(contact.normal.clone().dot(velocityA.clone().sub(velocityB)));
+        let velocityTangent = velocityA.clone().sub(velocityB).sub(velocityNormal);
+        angularContributionA = contact.bodyA.applyInverseAngularInertiaWorldSpace(collsionRelToA.clone().cross(velocityTangent.clone().normalize())).cross(collsionRelToA);
+        angularContributionB = contact.bodyB.applyInverseAngularInertiaWorldSpace(collsionRelToB.clone().cross(velocityTangent.clone().normalize())).cross(collsionRelToB);
+        angularContribution = angularContributionA.clone().add(angularContributionB).dot(velocityTangent.clone().normalize());
+        impulse = velocityTangent.clone().multiplyScalar(collisionFriction*(1+collisionElasticity)/(contact.bodyA.invMass + contact.bodyB.invMass + angularContribution));
+        contact.bodyA.applyImpulse(contact.pointOnA_WorldSpace.clone(), impulse.negate());
+        contact.bodyB.applyImpulse(contact.pointOnB_WorldSpace.clone(), impulse);
 
         // move the objects to stop them from overlapping, while keeping the center of mass of the two at the same place
         let sepDist = contact.pointOnB_WorldSpace.clone().sub(contact.pointOnA_WorldSpace);
