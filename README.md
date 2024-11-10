@@ -12,8 +12,3 @@ I am using this textbook as a resource for building this physics engine: (https:
 | Simulating Angular Movement | Done |
 | Handling Angular Collision | Done |
 | Friction | Done |
-| Continuous Collision Detection | In progress |
-| Broadphase Collision Detection |  |
-| Box body shape |  |
-| Arbitrary body shape |  |
-| etc. |  |
