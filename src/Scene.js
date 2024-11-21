@@ -1,6 +1,9 @@
 class Scene {
     #bodies = [];
     threeScene;
+    isAR = false;
+    session = null;
+    xrSpace = null;
 
     static gravityVector = new THREE.Vector3(0,-10,0);
 
@@ -8,7 +11,7 @@ class Scene {
         this.threeScene = threeScene;
     }
 
-    update(dt) {
+    update(dt, frame = null) {
         // apply gravity to each object
 
         for (var i = 0; i < this.#bodies.length; i++) {
@@ -25,6 +28,14 @@ class Scene {
                 
             }
         }
+
+        // ar collision check
+        if(this.isAR) {
+            for (var i = 0; i < this.#bodies.length; i++) {
+                Scene.checkARCollision(this.#bodies[i], frame);
+            }
+        }
+        
 
         // update velocities
         for (var i = 0; i < this.#bodies.length; i++) {
@@ -52,6 +63,23 @@ class Scene {
         this.threeScene.add(body.mesh);
     }
 
+    static checkARCollision(body, frame) {
+        let pos = body.getPosition();
+        let dir = body.linearVelocity.clone().multiplyScalar(dt);
+        let ray = XRRay({x: pos.x, y: pos.y, z:pos.z}, {x: dir.x, y:dir.y, z:dir.z});
+
+        xrHitTestSource = session.requestHitTestSource({
+            space: xrSpace,
+            offsetRay: ray,
+        })
+
+        let hitResults = frame.getHitTestResults(xrHitTestSource);
+
+        if(hitResults > 0) {
+            body.linearVelocity = new linearVelocity(0,1,0);
+        }
+    }
+
     static resolveContact(contact) {
 
         let collsionRelToA = contact.pointOnA_WorldSpace.clone().sub(contact.bodyA.getCenterOfMassWorldSpace());
@@ -60,8 +88,6 @@ class Scene {
         let velocityB = contact.bodyB.linearVelocity.clone().add(contact.bodyB.angularVelocity.clone().cross(collsionRelToB));
         let collisionElasticity = contact.bodyA.elasticity * contact.bodyB.elasticity; // rough estimate of what the elasticity of the collision should be
         let collisionFriction = contact.bodyA.friction * contact.bodyB.friction; // rough estimate of what the friction of the collision should be
-
-        console.log(collisionFriction);
         
         // apply the impulse from the collision
         
